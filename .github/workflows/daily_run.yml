@@ -29,3 +29,8 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
           DINGDING_SECRET: ${{ secrets.DINGDING_SECRET }}
+          MAX_SCAN_CODES: "30"
+          THREAD_WORKERS: "8"
+          SCAN_TIME_BUDGET_SECONDS: "240"
+          ENABLE_FUNDAMENTAL_FILTER: "false"
+          USE_CORE_POOL: "true"
