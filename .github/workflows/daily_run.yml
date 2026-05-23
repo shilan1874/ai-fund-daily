@@ -11,6 +11,8 @@ env:
 jobs:
   run:
     runs-on: ubuntu-latest
+    # 极速版5分钟足够，杜绝长期卡死
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
 
