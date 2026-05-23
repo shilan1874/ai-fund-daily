@@ -2,7 +2,7 @@ name: Daily A-Share Hedge Fund Report
 
 on:
   schedule:
-    - cron: '0 1 * * 1-5'
+    - cron: "0 1 * * 1-5"
   workflow_dispatch:
 
 env:
@@ -13,6 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      # 关键：开启国内网络代理，解决104连接重置
+      - name: Use China network proxy
+        uses: gengxiaoxu/proxy-action@main
+
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
