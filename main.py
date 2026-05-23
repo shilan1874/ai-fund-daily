@@ -16,12 +16,12 @@ load_dotenv()
 
 
 def send_dingtalk(title: str, content: str) -> None:
-    webhook = os.getenv("DINGTALK_WEBHOOK")
+    webhook = os.getenv("DINGTALK_WEBHOOK") or os.getenv("DINGDING_WEBHOOK")
     if not webhook or webhook == "your-dingtalk-webhook":
-        print("未配置 DINGTALK_WEBHOOK，跳过钉钉推送。")
+        print("未配置 DINGTALK_WEBHOOK/DINGDING_WEBHOOK，跳过钉钉推送。")
         return
 
-    secret = os.getenv("DINGTALK_SECRET")
+    secret = os.getenv("DINGTALK_SECRET") or os.getenv("DINGDING_SECRET")
     if secret and secret != "your-dingtalk-secret":
         timestamp = str(round(time.time() * 1000))
         string_to_sign = f"{timestamp}\n{secret}"
