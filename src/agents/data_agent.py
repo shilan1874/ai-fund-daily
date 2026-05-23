@@ -6,8 +6,8 @@ from typing import Optional, Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 终极提速配置（专治GitHub海外慢网络、串行卡死）
-MAX_RETRY = 1
-REQ_DELAY = 0.2
+MAX_RETRY = 2
+REQ_DELAY = 0.3
 # 并行线程数，既快又不被风控
 THREAD_WORKERS = 30
 
@@ -19,13 +19,18 @@ def retry(max_tries=MAX_RETRY, delay=REQ_DELAY):
             tries = 0
             while tries < max_tries:
                 try:
-                    return func(*args, **kwargs)
+                    res = func(*args, **kwargs)
+                    # 兜底：空数据直接重试
+                    if res is None or (isinstance(res, list) and len(res) == 0):
+                        raise ValueError("empty data")
+                    return res
                 except Exception:
                     tries += 1
                     if tries == max_tries:
-                        return None
+                        # 最终失败返回空列表，不返回None！解决None迭代报错
+                        return []
                     time.sleep(delay)
-            return None
+            return []
         return wrapper
     return decorator
 
@@ -33,6 +38,9 @@ def retry(max_tries=MAX_RETRY, delay=REQ_DELAY):
 @retry()
 def get_valid_ashare_codes() -> List[str]:
     df_all = ak.stock_info_a_code_name()
+    # 兜底判断接口空数据
+    if df_all is None or df_all.empty:
+        return []
     # 剔除ST、北交所、垃圾股
     df_all = df_all[~df_all["name"].str.contains("ST", na=False)]
     df_all = df_all[df_all["code"].str.len() == 6]
@@ -90,6 +98,8 @@ def get_financial_metrics(ticker: str):
 def batch_get_stock_data(codes: List[str]) -> List[pd.DataFrame]:
     """多线程并行拉取数据，彻底告别串行慢速卡死"""
     results = []
+    if not codes:
+        return results
     with ThreadPoolExecutor(max_workers=THREAD_WORKERS) as executor:
         future_map = {executor.submit(get_stock_data, code): code for code in codes}
         for future in as_completed(future_map):
@@ -98,5 +108,5 @@ def batch_get_stock_data(codes: List[str]) -> List[pd.DataFrame]:
                 results.append(res)
     return results
 
-# 兼容旧项目全局接口
+# 兼容旧项目全局接口，【关键修复】永远返回列表，绝不返回None
 get_all_ashare_codes = get_valid_ashare_codes
