@@ -1,10 +1,8 @@
 name: Daily A-Share Hedge Fund Report
-
 on:
   schedule:
     - cron: "0 1 * * 1-5"
   workflow_dispatch:
-
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -14,9 +12,9 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
-      - name: Run Hedge Fund
+      - name: Run Main Program
         run: python main.py
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
-          DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
+          DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
+          DINGDING_SECRET: ${{ secrets.DINGDING_SECRET }}
